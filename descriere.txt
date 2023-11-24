@@ -1,0 +1,5 @@
+Site-ul va fi un magazin online pe care fiecare utilizator poate posta oferte si cumpara de la altii.
+
+Baza de date va contine informatii despre utilizatori (inclusiv administratorii), conectarile acestora (pe care nu sunt sigur inca cum sa le implementez), ofertele pe care le posteaza si tranzactiile efectuate.
+
+Link: mgos.infinityfreeapp.com
