@@ -16,5 +16,13 @@
         </tr>
         </table>
     </form>
+    
+    <!-- Sign up redirect: -->
+    <?php
+    require_once 'utility.php';
+    $uri = getCurrentParentURI().'/signup.php';
+    echo "<a href='".$uri."'>Sign up</a>";
+    ?>
+
     </body>
 </html>

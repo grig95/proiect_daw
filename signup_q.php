@@ -1,12 +1,35 @@
 <?php
 
-$link = mysqli_connect("localhost", "onlineshop", "onlinesho", "onlineshop");
+require_once 'constants.php';
+require_once 'utility.php';
 
-$email_query = "select * from utilizatori where email='".$_POST['email']."';";
+$email = sanitizeSQLInput($_POST['email']);
+$nume = sanitizeSQLInput($_POST['nume']);
+$parola = sanitizeSQLInput($_POST['parola']);
+
+// CHESTIA ASTA NU REDIRECTIONEAZA CU TOT CU ARGUMENTE SI NU IMI DAU SEAMA DE CE
+if($nume != $_POST['nume'])
+    {
+        $uri = getCurrentParentURI().'/signup.php?invalid_username=1';
+        header('Location: '.$uri);
+        exit;
+    }
+if($parola != $_POST['parola'])
+    {
+        $uri = getCurrentParentURI().'/signup.php?invalid_password=1';
+        header('Location: '.$uri);
+        exit;
+    }
+$parola = hash(PASSWD_HASH_FUNC, $parola);
+
+
+$link = mysqli_connect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+
+$email_query = "select * from utilizatori where email='".$email."';";
 
 $email_result = $link->query($email_query);
 
-$name_query = "select * from utilizatori where nume='".$_POST['nume']."';";
+$name_query = "select * from utilizatori where nume='".$nume."';";
 
 $name_result = $link->query($name_query);
 
@@ -21,7 +44,7 @@ elseif($name_result->fetch_array())
     }
 else
     {
-        $query = "insert into utilizatori (nume, email, parola) values ('".$_POST["nume"]."', '".$_POST["email"]."', '".$_POST["parola"]."');";
+        $query = "insert into utilizatori (nume, email, parola) values ('".$nume."', '".$email."', '".$parola."');";
 
         $result = $link->query($query);
 

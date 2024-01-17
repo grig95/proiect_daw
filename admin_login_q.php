@@ -1,8 +1,15 @@
 <?php
 
-$link = mysqli_connect("localhost", "onlineshop", "onlinesho", "onlineshop");
+require_once 'constants.php';
+require_once 'utility.php';
 
-$query = "select * from utilizatori where email='".$_POST['email']."' and parola='".$_POST['parola']."';";
+$email = sanitizeSQLInput($_POST['email']);
+$parola = hash(PASSWD_HASH_FUNC, sanitizeSQLInput($_POST['parola']));
+
+
+$link = mysqli_connect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+
+$query = "select * from utilizatori where email='".$email."' and parola='".$parola."';";
 
 $result = $link->query($query);
 
@@ -13,7 +20,24 @@ if($row)
         $result= $link->query($query);
         if($result->fetch_array())
             {
-                echo "Logged in as Admin";
+                //generate new session
+                $sessionID = generateRandomString(SESSIONID_LENGTH);
+                $checkCollisionQuery = "select * from sesiuni where id='".$sessionID."';";
+                $checkResult = $link->query($checkCollisionQuery)->fetch_array();
+                while($checkResult)
+                {
+                    $sessionID = generateRandomString(SESSIONID_LENGTH);
+                    $checkCollisionQuery = "select * from sesiuni where id='".$sessionID."';";
+                    $checkResult = $link->query($checkCollisionQuery)->fetch_array();
+                }
+                $createSessionQuery = "insert into sesiuni (id, id_utilizator) values ('".$sessionID."', ".$row['id'].");";
+                $link->query($createSessionQuery);
+
+                setcookie('sessionid', $sessionID, time()+SESSIONID_VALIDITY_TIME_SECONDS);
+                mysqli_close($link);
+                $userPageURI = getCurrentParentURI().'/admin.php';
+                header('Location: '.$userPageURI);
+                exit;
             }
         else
             {
